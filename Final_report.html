@@ -1,0 +1,291 @@
+﻿<h1>Machine Learning Engineer Nanodegree</h1>
+<h2>Capstone Project</h2>
+<p>Mayur Selukar
+December 21st, 2018</p>
+<h2>I. Definition</h2>
+<h3>Project Overview</h3>
+<p>Weeds are among the most serious threats to the natural environment and primary production industries. They displace native species, contribute significantly to land degradation, and reduce farm and forest productivity.</p>
+<p>Invasive species, including weeds, animal pests, and diseases represent the biggest threat to our biodiversity after habitat loss. Weed invasions change the natural diversity and balance of ecological communities. These changes threaten the survival of many plants and animals as the weeds compete with native plants for space, nutrients, and sunlight.</p>
+<p>Weeds typically produce large numbers of seeds, assisting their spread, and rapidly invade disturbed sites. Seeds spread into natural and disturbed environments, via wind, waterways, people, vehicles, machinery, birds and other animals.</p>
+<p>The ability to differentiate a weed from a crop seedling effectively can mean better crop yields and better stewardship of the environment.</p>
+<p>The Aarhus University Signal Processing group, in collaboration with the University of Southern Denmark, has released a dataset containing images of approximately 960 unique plants belonging to 12 species at several growth stages.</p>
+<p>The dataset is hosted on <a href="www.kaggle.com">Kaggle</a> and is free to download.
+Please visit this <a href="https://www.kaggle.com/c/plant-seedlings-classification/data">link</a> to get the data via kaggale.</p>
+<h3>Problem Statement</h3>
+<p>This is a multiclass classification problem with 12 classes representing  different plant species
+Input is a given image and the goal is to classify its species.</p>
+<p>I will be tackling this as an Image Classification problem and plan to use the CNN deep learning model.
+Further on I will use the transfer learning technique to improve accuracy. Data augmentation will also be performed to make the model more generalized and accurate.</p>
+<p>The target here is one of the following 12 species</p>
+<ul>
+<li>Black-grass</li>
+<li>Charlock</li>
+<li>Cleavers</li>
+<li>Common Chickweed</li>
+<li>Common wheat</li>
+<li>Fat Hen</li>
+<li>Loose Silky-bent</li>
+<li>Maize</li>
+<li>Scentless Mayweed</li>
+<li>Shepherds Purse</li>
+<li>Small-flowered Cranesbill</li>
+<li>Sugar beet</li>
+</ul>
+<h3>Metrics</h3>
+<p>Submissions are evaluated on MeanFScore, which at Kaggle is actually a micro-averaged F1-score.</p>
+<p>Given positive/negative rates for each class k, the resulting score is computed this way:</p>
+<p align="center" style="text-align: center;"><img align="center" src="https://tex.s2cms.ru/svg/%20Precision_%7Bmicro%7D%20%3D%20%20%5Cfrac%7B%5Csum_%7Bk%20%5Cin%20C%7D%20TP_k%7D%7B%5Csum_%7Bk%20%5Cin%20C%7D%20TP_k%20%2B%20FP_k%7D%20%20" alt=" Precision_{micro} =  \frac{\sum_{k \in C} TP_k}{\sum_{k \in C} TP_k + FP_k}  " /></p>
+<p align="center" style="text-align: center;"><img align="center" src="https://tex.s2cms.ru/svg/%20Recall_%7Bmicro%7D%20%3D%20%20%5Cfrac%7B%5Csum_%7Bk%20%5Cin%20C%7D%20TP_k%7D%7B%5Csum_%7Bk%20%5Cin%20C%7D%20TP_k%20%2B%20%20FN_k%7D%20%20" alt=" Recall_{micro} =  \frac{\sum_{k \in C} TP_k}{\sum_{k \in C} TP_k +  FN_k}  " /></p>
+<p>F1-score is the harmonic mean of precision and recall</p>
+<p align="center" style="text-align: center;"><img align="center" src="https://tex.s2cms.ru/svg/%20MeanFScore%20%3D%20F1_%7Bmicro%7D%3D%20%5Cfrac%7B2%20Precision_%7Bmicro%7D%20Recall_%7Bmicro%7D%7D%7BPrecision_%7Bmicro%7D%20%2B%20Recall_%7Bmicro%7D%7D%20" alt=" MeanFScore = F1_{micro}= \frac{2 Precision_{micro} Recall_{micro}}{Precision_{micro} + Recall_{micro}} " /></p>
+<p><a href="https://scikit-learn.org/stable/modules/generated/sklearn.metrics.f1_score.html">For Reference Click here</a></p>
+<h2>II. Analysis</h2>
+<h3>Data Exploration</h3>
+<p>There are 12 total categories.<br>
+Total Images are 4750<br>
+There are 3800 total training images.<br>
+There are 950 total testing images.<br>
+The resolution of the images varies quite a bit with higher resolution ones being 4000x3000 px and smaller ones being 400x300 px.</p>
+<p>The data is stored in just one directory train and no separate testing data is provided
+In order to avoid loading all of the data into memory, the data was separated into a train and a testing folder with respective subdirectories for the classes. The code present in seperator_capstone.inpyb and explained later in data preprocessing section.</p>
+<p><em>Images Per category</em><br>
+Black-grass 217 images<br>
+Charlock 311 images<br>
+Cleavers 225 images<br>
+Common Chickweed 490 images<br>
+Common wheat 174 images<br>
+Fat Hen 379 images<br>
+Loose Silky-bent 528 images<br>
+Maize 170 images<br>
+Scentless Mayweed 414 images<br>
+Shepherds Purse 192 images<br>
+Small-flowered Cranesbill 398 images<br>
+Sugar beet 302 images</p>
+<p>The dataset is highly unbalanced to combat this a number of different strategies can be applied like undersampling the data set, image augmentation to balance the underrepresented class or we can also calculate the confusion matrix and the f1 score of the model these will give us a better understanding about the working of the model.</p>
+<h3>Exploratory Visualization</h3>
+<div style="text-align: center;margin-bottom:-22px; font-style: italic;font-size: 18px">
+Sample Images
+</div>
+<p><img src="https://lh4.googleusercontent.com/4rrJMSacteeykeMfKbah7regIL7a2YvCxeClEV4P2pOfIugekxTmhL5T0dx3eSFPoUkAI3nLRa5m481mJCyB=w1920-h948-rw" alt="12 sample images per cateogery"></p>
+<p><em>Some observations:</em><br>
+All images are not having the same background and some have what appears to be barcodes in the background, we only need to detect saplings these inconsistent backgrounds will cause our model to take the background as a feature and get the wrong label for the given input.<br>
+Due to this nature of the dataset, some performance will be lost
+This can be dealt with by masking and is discussed in future works.
+I have used 80:20 as the train test and train validation split</p>
+<p>Plotting the no of samples per category
+<img src="https://lh6.googleusercontent.com/_C-heKcd0hG5pg2nnRosTU4hLVtTEnDkAAI5xRcBsQehVE8UFyJ0huvpKWjHoDcbtbzuQK2ZD_yX-t0_fGFT=w1920-h899-rw" alt="Samples per category"><br>
+The bar graph above represents the unbalanced nature of the dataset with some categories having close to 500 samples and some under 200.</p>
+<h3>Algorithms and Techniques</h3>
+<p>In a regular neural network, the input is transformed through a series of hidden layers having multiple neurons. Each neuron is connected to all the neurons in the previous and the following layers. This arrangement is called a fully connected layer and the last layer is the output layer. In Computer Vision applications where the input is an image, we use convolutional neural network because the regular fully connected neural networks don’t work well. This is because if each pixel of the image is input then as we add more layers the amount of parameters increases exponentially.<br>
+Convolutional neural networks have been some of the most influential innovations in the field of computer vision. 2012. Image classification is the task of taking an input image and outputting a class or a probability of classes that best describes the image this is best handled by the modern CNN so I will be using those
+The Convolution part of the CNN is built using two main components Convolution layers and Pooling Layers
+The convolution layers increase depth by computing op of neurons connected to local layers and pooling layers perform downsampling</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Function</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Input Layer (WxHxD)</td>
+<td>Non-Computing Layer  Represents the size of the input</td>
+</tr>
+<tr>
+<td>Dense (Fully Connected Layer)</td>
+<td>Dense implements the operation:  output = activation(dot(input, kernel) + bias)  where activation is the element-wise activation function passed as the activation argument, kernel is a weights matrix created by the layer, and bias is a bias vector created by the layer</td>
+</tr>
+<tr>
+<td>Activation Function</td>
+<td>the activation function of a node defines the output of that node, or &quot;neuron,&quot; given input or set of inputs. It can be applied as either an argument to dense layer or an activation layer</td>
+</tr>
+<tr>
+<td>Flatten</td>
+<td>Flattens the Input</td>
+</tr>
+<tr>
+<td>Convolution Layers</td>
+<td>Computer the op of the neurons connected to the local regions, By computing the dot product between the weights(filters) and the small region they are connected to.</td>
+</tr>
+<tr>
+<td>Pooling Layers</td>
+<td>further condense the spatial size of the representation to reduce the number of parameters and computation in the network</td>
+</tr>
+</tbody>
+</table>
+<p>The solution is built with CNN’s as feature extractor and Logistic REgression as Classifier
+The Output of the convolution part of the CNN is given to Log Reg model and a 2 layer Dense net in case of the benchmark model.</p>
+<h3>Benchmark</h3>
+<p>As my Bench Mark model, I used the First approach i.e A 2 layer dense net connected to the VGG16s Convolutional part
+To set the bar high. Image Augmentation was also performed and the model was trained for 50 epochs initially and then restarted for 50 and stopped after 13th epoch due to early stopping criterion being met.<br>
+The F1 score was found to be 0.8011 on the testing set the validation split was 20% and was done by a validation generator.
+The summary of the model is as follows</p>
+<p><img src="https://lh6.googleusercontent.com/-DoWtK2J8CwaS1VkDBbz0llVwyLXm398bqzG5TSxAOKZsMKxAnvWSg72wZAFCjf4oM7TudfTuY8dFONrqA9G=w1920-h948-rw" alt="Model Summary"></p>
+<h2>III. Methodology</h2>
+<h3>Data Preprocessing</h3>
+<p><strong>Restructuring the dataset</strong></p>
+<ul>
+<li>The dataset was downloaded from Kaggle and then extracted into the current working directory</li>
+<li>train folder was renamed to train1 and the data was separated into train and test in the ratio of 80:20</li>
+<li>These separated datasets were then stored into respective test and train directory maintaining the subdirectory structure.  <em>This was done in order to perform image augmentation</em><br>
+After loading the dataset from train1 using load_dataset() function
+the datasets were split using the test_train_split and seed = 42
+These were then stored using the code below
+<img src="https://lh6.googleusercontent.com/z5V53uJUIoQIzKF4TmOQ36srtkcz8B2NfG4heR4JoorS8OObDv3HH2cvaxO2B1htyZVG-I_u-VLkPsKB54zh=w1920-h948-rw" alt=""></li>
+</ul>
+<p><em>NOTE: Please read the readme for the link to download this modified dataset</em></p>
+<p><strong>Loading the datasert</strong><br>
+The path of the dataset (Train and Test subdirectories) was fed into
+‘load_dataset’ function that returns a dictionary containing the list of folder names (the
+category names) as ‘target’, and list of all the individual file names as ‘filenames’.</p>
+<p><strong>One hot Encoding</strong><br>
+The target categories produced by the load_dataset were then one hot encoded to 1d arrays of size 12 as y_train and y_test</p>
+<p><strong>Train-Validation Split</strong>
+The train part of the dataset was further split in the ratio of 80:20 to create a validation set only for Log Reg Models was this validation split done in case of the dense net (benchmark model) the validation split was specified in the train_datagen_vgg16.</p>
+<p><strong>Defining the datagenerators</strong><br>
+Since the images are of plants and the subject is in center only simple augmentation (Zoom, rotation width and height shift) was performed
+the code for the generator is as follows</p>
+<p><img src="https://lh6.googleusercontent.com/7bYS94xmisH0ARoai3LmCwAlNjI3a1GEmSu5E1mkSWw8tiSn95A0TPJ-7J-PD9yhsD8KJZBmS4X3pgGpOvXM=w1920-h948-rw" alt="Generator Code "></p>
+<h3>Implementation</h3>
+<p><strong>The Benchmark Model (VGG16 with only 2 trainable dense layers at the top)</strong><br>
+Following are the key properties</p>
+<ul>
+<li>Tensors of shape (224,224,3) representing the image shape and 3 channels were
+fed into the network</li>
+<li>All the layers of the pre-trained VGG16 were frozen.</li>
+<li>Additionally, for predictions, the output of the convolution part was flattened and was fed into a dense net with 2 layers</li>
+<li>The 1st layer was of 1024 nodes and had the relu activation function and a dropout of 0.5</li>
+<li>The 2nd layer was of 12 nodes and had a sigmoid activation function</li>
+<li>The architecture resulted in 25,703,436 Trainable Parameters<br>
+The summary of the model can be found in the figure above</li>
+</ul>
+<p><strong>For Logistic Regression Classifiers trained using the Bottleneck Features</strong><br>
+The idea here was to test the performance of different models as feature extractors.<br>
+I ended up using VGG16, Xception and MobilNet to represent models of different sizes refer <a href="https://keras.io/applications/">link</a> for more details</p>
+<ul>
+<li>First, the input images were loaded and reshaped to required input shape depending on the model used as the feature extractor the target size was 224x224 for VGG16 and MobilNet and 299x299 for Xception</li>
+<li>Then the model in question was loaded with the weights as imagenet, and pooling set to avg</li>
+<li>The train test and validation images were then run through the predict function to obtain the bottleneck features</li>
+<li>THese Bottleneck features were then saved locally and used to train a Logistic Regression model
+with the parameters as multi_class='multinomial' and solver='lbfgs'</li>
+</ul>
+<p><strong>Complications</strong><br>
+Although the same methodology was used in the case of all the 3 models the Xception models features were unable to converge even after 20000 iterations.<br>
+<em>The mentor told me to skip the Xception model as the results may not converge for a Logistic Regression classifier without changes in the way bottleneck features were extracted</em><br>
+Since I didn’t want to change the pre-trained layers of Xception or any other parameter. As it would be unfair for the other models in comparison. I left the results be and proceded with the MobileNet Features for refinement
+The results are further explained in the Results</p>
+<h3>Refinement</h3>
+<p>As the Bottleneck features of MobileNet gave the best result, they were the ones selected for refinement
+the model to be optimized was the Logistic Regression model
+The hyperparameters for a Logistic Regression model are C and penalty
+the default value of which are 1 and 12 respectively the solver used only supports the penalty of 12 so
+I implemented gridsearchCV on the hyperparameter C to further tune the model</p>
+<p>The code was as follows<br>
+<img src="https://lh6.googleusercontent.com/7JKaMmCkYWqOK_xBkYx52NLMTYdlt-mOLnm2ydbx6vdMR7x6hfVz0XoMMH_p1ZsXkuqAEC6w0kyIBu_4ceqM=w1920-h948-rw" alt="Grid_search"></p>
+<p>The initial F1 score obtained was 0.8171 with no training of the MobileNet on the data just using the default ImageNet weights.
+after refinement i.e GridSearchCV, the score obtained was 0.8474
+The Grid search used the 5 fold cross validation fold CV for finding the optimal parameters</p>
+<h2>IV. Results</h2>
+<h3>Model Evaluation and Validation</h3>
+<p>The Overall Results of the various combination tested is  summarized in the table below
+The data used for calculating the F1 Score is Validation split of the data</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th style="text-align:center">F1 Score(Validation Data)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Using VGG16 Bottleneck Features and Logistic Regression</td>
+<td style="text-align:center">0.7961</td>
+</tr>
+<tr>
+<td>Using Xception Bottleneck Features and Logistic Regression</td>
+<td style="text-align:center">0.425</td>
+</tr>
+<tr>
+<td>Using MobileNets Bottleneck Features and Logistic Regression</td>
+<td style="text-align:center">0.811</td>
+</tr>
+<tr>
+<td>Using MobileNets Bottleneck Features and Logistic Regression (Optimized)</td>
+<td style="text-align:center">0.8471</td>
+</tr>
+</tbody>
+</table>
+<p><em>NOTE: Benchmark models results are not included here and are reported later when testing data is used for comparison of the final model and the benchmark model</em></p>
+<p>The final result is just as I expected. I wanted to approach the Problem with scale and speed in mind in return I had to give up performance and the goal was to minimize the performance loss as much as possible.</p>
+<p>Although the VGG16 or InceptionV3 (as used in many Kaggle Kernels) were giving better metrics, these models are very memory heavy and difficult to run. To remedy this I used the MobileNet Model which is very lightweight and used Logistic regression instead of a dense Net for classification to improve speed.</p>
+<p>The Initial version of the Model using MobileNets Bottleneck was further optimized using gridsearchCV. On testing the optimized model’s performance on the unseen dataset i.e the test dataset, the classifier scored an F1 score of 0.8474.</p>
+<p>The model built is robust as its built with Neural Nets which by there own nature account for variances.<br>
+How this score was achieved is discussed in the ‘Refinement section’ and how can I further
+improve this score is discussed in the ‘Improvement’ section.
+The justification for these results is provided below in the Justification section below.</p>
+<h3>Justification</h3>
+<p>The initial Benchmark model used VGG16 with Image Augmentation and achieved an F1 Score of 0.811 on the testing set.</p>
+<p>The final model that I selected used Mobilnet without any Image Augmentation for Feature Extraction and A Logistic Regression model for Classification and achieved an F1 score of 0.8474 on the testing set after optimizing using GridsearchCV for C which was later found to be 1 itself.</p>
+<p>Which is better than the Benchmark Model but is much Faster to train and Run. This achieves the end goal to achieve better accuracy with a faster prediction speed.</p>
+<p>I believe the final solution will definitely contribute significantly towards solving the current problem in a real-world setting (i.e with computation speed in mind)</p>
+<p>The reason behind me choosing mobile net is mentioned in 'Reflection' section of this report</p>
+<h2>V. Conclusion</h2>
+<h3>Free-Form Visualization</h3>
+<p>I decided to plot the confusion matrix of the final classifier to get a better picture of the models’ performance and to observe which category is poorly classified by the classifier
+<img src="https://lh6.googleusercontent.com/yo3UY3fyHVr7CcqBT2MjzLmL8ghvQM0Do4UQVfKHxjRE4bNgHHikVBqqD9zjieIEGt93RvF3JljCrL-oY53e=w1920-h948-rw" alt="Confusion Matrix"></p>
+<p>We can see in the confusion matrix above, that the major misclassification happened between Loose Silky-bent and Black-grass.
+The classifier is having difficulty distinguishing these two classes apart out of the 125 samples of  Loose Silky-bent 14 were marked as Black Grass and 7 as Common Wheat which is also significant.</p>
+<p>The situation is much worse in case of Black Grass out of the 43 samples 22 were marked as Loose Silky bent. The Imbalanced nature of the dataset can be seen here</p>
+<p>This is were the classifier needs improvement as this amounts to the majority of the miss classifications</p>
+<h3>Reflection</h3>
+<p>After my experience at the Google Indian Hackathon, where the winner was the MobileNet Architecture for the image classification problem where the target device was a smartphone. I wanted to better my understanding at Image Classification especially when there are not a lot of computation resources available (Mobile Devices) and the classification needs to be fast. I believe that the choice of this problem has justified that need.</p>
+<p>For this problem, after downloading the dataset from Kaggle, As the data was just in one subdirectory of train
+I renamed it to train 1 and split the data into two parts in 80:20 ratio and created a training and testing split.
+This was done so that Image augmentation could be performed on the data.</p>
+<p>I loaded the dataset using scikit learns load_files() function and converted the categorical file names into an array of 1s and 0s using the one-hot encoding (to_categorical) Function.<br>
+I explored the data by visualizing the categorical distribution of the dataset by plotting a graph to check if the dataset is well balanced or not. I further plotted randomly picked samples for each of the categories to understand
+the image samples.</p>
+<p>After that, I performed image augmentation on the training and the validation data and used transfer learning with the pre-trained VGG16 model on Imagenet and then to allow training the dense net at the top of the model I converted the paths of the images to 4d tensors of appropriate dimensions to VGG16s input.
+The number of epochs were initially set to 50 and then the model was rerun for another 50 epochs but stopped early after completing 13 epoch.</p>
+<p>After training and evaluation of the before mentioned benchmark model. I loaded the models of VGG16, Xception and MobileNet models without the top with average pooling to extract the bottleneck features of the images.
+These were stored locally and they were used to train separate Logistic Regression model for each set of Bottleneck Features.
+The maximum iteration parameters was increased to 5000 so that the classifier converges (Leaving the Xception model which did not converge even after 20000 iterations)</p>
+<p>Evaluating the performance of the classifier on the validation set I took the mobilents bottleneck features for the final model as they gave decent performance with the fastest prediction speed. I implemented GridsearchCV to tune the hyperparameter C and find out the optimal value to be 1.</p>
+<p>Selecting this optimized classifier as the final model I evaluated its performance and to take deeper look plotted the confusion matrix for the testing dataset of 960 samples.</p>
+<p>Working on this problem has taught me a lot although not implemented I learned about masking. I learned about Image Augmentation and transfer learning. I also explored how CNN’s can be used in conjunction with the traditional Machine learning models.</p>
+<p>The major difficulty I faced was initially to restructure the dataset as although the dataset could be loaded into memory this was not desirable as It will not always be possible.
+The second issue was when the Xception features did not converge with a Logistics regression Classifire and were later cleared by the mentor
+<em>The mentor told me to skip the Xception model as the results may not converge for a Logistic Regression classifier without changes in the way bottleneck features were extracted</em></p>
+<p>This project gave me a good insight on how to deal with future image classification problems and encouraged me to work on further improving my current model especially try out masking the background and to use augmentation to balance the dataset.
+It is satisfying to see that the final model performs exceptionally well and I can’t wait to work on other projects</p>
+<h3>Improvement</h3>
+<p>As an improvement and future work the following can be done</p>
+<ul>
+<li>
+<p>I would like to try data masking on the training set.<br>
+Noise from the background of the images (especially from the barcodes) can be canceled by masking images. I believe
+that without the background noise and restricting the visibility to the leaves, the
+model can be trained better, and we may notice a significant improvement in the
+performance.</p>
+</li>
+<li>
+<p>Another implementation that can be tried is data augmentation. As the dataset is highly
+unbalanced, augmenting data to the under-represented classes might give a good boost
+to the total number of training images yielding a well-balanced dataset. Training the
+model on such dataset may give us a significant improvement in the performance.</p>
+</li>
+<li>
+<p>Another improvement that comes to mind is using a different model than Logistic Regression like a Random Forest which may result in improvement in the performance.</p>
+</li>
+</ul>
+<hr>
+<h3>References</h3>
+<ul>
+<li><a href="https://adeshpande3.github.io/A-Beginner%27s-Guide-To-Understanding-Convolutional-Neural-Networks/">https://adeshpande3.github.io/A-Beginner's-Guide-To-Understanding-Convolutional-Neural-Networks/</a></li>
+<li><a href="http://cs231n.github.io/convolutional-networks/">http://cs231n.github.io/convolutional-networks/</a></li>
+<li><a href="https://keras.io/layers/convolutional/">https://keras.io/layers/convolutional/</a></li>
+<li><a href="https://keras.io/layers/core/">https://keras.io/layers/core/</a></li>
+<li><a href="https://engmrk.com/convolutional-neural-network-3/?utm_campaign=News&amp;utm_medium=Community&amp;utm_source=DataCamp.com">https://engmrk.com/convolutional-neural-network-3/?utm_campaign=News&amp;utm_medium=Community&amp;utm_source=DataCamp.com</a></li>
+<li><a href="https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html">https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html</a></li>
+</ul>
